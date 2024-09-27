@@ -39,7 +39,7 @@ export default function Scan() {
   const handleBarCodeScanned = ({ type, data }: BarCodeScannedEvent) => {
     setScanned(true);
     setScannedData(data);
-    setModalVisible(!modalVisible)
+    setModalVisible(!modalVisible);
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
   if (hasPermission === null) {
@@ -66,27 +66,69 @@ export default function Scan() {
           zoom={0.01}
         />
       </Modal>
-      <TouchableOpacity onPress={()=>{setModalVisible(!modalVisible); setScanned(false)}}
+      <TouchableOpacity
+        onPress={() => {
+          setModalVisible(!modalVisible);
+          setScanned(false);
+        }}
         style={{
           height: 50,
           width: 50,
           backgroundColor: "white",
           alignSelf: "flex-end",
-          borderRadius:25,
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'center'
+          borderRadius: 25,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <Icon name="qrcode-scan" type="material-community" size={30} color={'#69AEA9'}/>
+        <Icon
+          name="qrcode-scan"
+          type="material-community"
+          size={30}
+          color={"#69AEA9"}
+        />
       </TouchableOpacity>
-      {/* {scanned && (
-        // <Button title="Scan Again" onPress={() => setScanned(false)} />
-      )} */}
+
       <View style={{ height: 30 }}></View>
-      <Text style={{ fontWeight: "bold", fontSize: 20 }}>
-        Scanned Data: {scannedData}
-      </Text>
+      <Text style={{ fontWeight: "bold", fontSize: 20 }}>Scanned Data:</Text>
+
+      {scanned && (
+        <>
+          <View style={{ height: 30 }}></View>
+          <View
+            style={{
+              width: 350,
+              paddingVertical: 20,
+              backgroundColor: "white",
+              paddingHorizontal: 20,
+              justifyContent: "center",
+              borderRadius: 10,
+            }}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+              {scannedData}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={{
+              height: 50,
+              width: 350,
+              backgroundColor: "#69AEA9",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius:10,
+              position:'absolute',
+              alignSelf:'center',
+              top:height-150
+            }}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 20, color: "white" }}>
+              Checkout
+            </Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }
