@@ -29,9 +29,7 @@ import {
         <View style={{ height: 150 }}></View>
         <Text style={styles.SaveText}>Scan Smart {"\n"} Work Faster</Text>
         <View style={{ height: 50 }}></View>
-        {/* 
-        //   onPress={() => navigation.navigate("SignUp")}
-        > */}
+       
         <TouchableOpacity
           style={styles.button}
           >
@@ -42,35 +40,6 @@ import {
             </Link></TouchableOpacity>
 
        
-        {/* <View style={{ height: 50 }}></View>
-        <View>
-          <Text
-            style={{
-              fontSize: 15,
-              fontWeight: "bold",
-              alignItems: "center",
-              justifyContent: "center",
-              display: "flex",
-            }}
-          >
-            Already have an account?
-            <TouchableOpacity 
-            // onPress={() => navigation.navigate("Login")}
-            >
-              <Text
-                style={{
-                  color: "#69AEA9",
-                  fontSize: 15,
-                  fontWeight: "bold",
-                  top: 2,
-                }}
-              >
-                {" "}
-                Log In
-              </Text>
-            </TouchableOpacity>
-          </Text>
-        </View> */}
       </View>
     );
   }
