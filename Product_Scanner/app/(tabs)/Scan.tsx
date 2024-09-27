@@ -11,10 +11,8 @@ import {
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "react-native-elements";
-// import QRCodeScanner from 'react-native-qrcode-scanner'
-// import { RNCamera } from "react-native-camera";
 import {Camera, CameraView} from 'expo-camera'
-// import {BarCodeScanner} from 'expo-barcode-scanner'
+import axios from 'axios'
 
 
 const height = Dimensions.get("screen").height;
@@ -49,17 +47,26 @@ export default function Scan() {
         return <Text>No access to camera</Text>;
       }
 
+
+      // const prodDetails=async()=>{
+      //   try {
+      //     const response= await axios.get(`https://api.barcodelookup.com/v3/products?barcode=${scannedData}&formatted=y&key=ifDzhmKslKav42OD93NE`)
+      //   } catch (error) {
+          
+      //   }
+      // }
     return (
         <View style={styles.ScanMain}>
             <SafeAreaView></SafeAreaView>
            <CameraView onBarcodeScanned={scanned? undefined: handleBarCodeScanned}
-           style={StyleSheet.absoluteFill}/>
+           style={{height:200, width:300, alignSelf:'center'}}
+           zoom={0.01} />
 
       {scanned && (
-        <Button title="Tap to Scan Again" onPress={() => setScanned(false)} />
+        <Button title="Scan Again" onPress={() => setScanned(false)} />
       )}
-
-      <Text>Scanned Data: {scannedData}</Text>
+      <View style={{height:30}}></View>
+      <Text style={{fontWeight:'bold', fontSize:20}}>Scanned Data: {scannedData}</Text>
         </View>
     );
 }
