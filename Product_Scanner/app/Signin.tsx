@@ -45,23 +45,21 @@ export default function Login() {
             <Input placeholder="Password" icon="key-outline" secureTextEntry />
           </View>
         </LinearGradient>
-
-        <TouchableOpacity
-          style={{
-            height: 50,
-            backgroundColor: "#69AEA9",
-            width: 300,
-            borderRadius: 20,
-            display: "flex",
-            alignItems:'center',
-            justifyContent:'center',
-            paddingTop:10
-          }}
-        >
-          <Link href={"/(tabs)"} style={{ height: "100%", width: "100%" }}>
+        <Link href={"/(tabs)"} asChild>
+          <TouchableOpacity
+            style={{
+              height: 50,
+              backgroundColor: "#69AEA9",
+              width: 300,
+              borderRadius: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Text style={styles.LogText}>Log In</Text>
-          </Link>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </Link>
       </ImageBackground>
     </View>
   );
@@ -127,6 +125,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 20,
     fontWeight: "bold",
-    textAlign:'center'
+    textAlign: "center",
   },
 });

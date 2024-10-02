@@ -29,15 +29,15 @@ import {
         <View style={{ height: 150 }}></View>
         <Text style={styles.SaveText}>Scan Smart {"\n"} Work Faster</Text>
         <View style={{ height: 50 }}></View>
-       
+       <Link href={'/Signin'} asChild>
         <TouchableOpacity
           style={styles.button}
           >
-            <Link href={'/Signin'} style={styles.theButton} asChild>
+            
             
             <Text style={styles.buttonText}>Get Started</Text>
             
-            </Link></TouchableOpacity>
+            </TouchableOpacity></Link>
 
        
       </View>
@@ -79,6 +79,9 @@ import {
       shadowOffset: { width: 5, height: 5 },
       shadowColor: "gray",
       shadowOpacity: 0.3,
+      display:'flex',
+      alignItems:'center',
+      justifyContent:'center'
     },
     buttonText: {
       fontSize: 17,

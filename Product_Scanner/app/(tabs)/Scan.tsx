@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   Button,
+  Image,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -40,7 +41,6 @@ export default function Scan() {
     setScanned(true);
     setScannedData(data);
     setModalVisible(!modalVisible);
-    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
@@ -49,17 +49,25 @@ export default function Scan() {
     return <Text>No access to camera</Text>;
   }
 
-  // const prodDetails=async()=>{
-  //   try {
-  //     const response= await axios.get(`https://api.barcodelookup.com/v3/products?barcode=${scannedData}&formatted=y&key=ifDzhmKslKav42OD93NE`)
-  //   } catch (error) {
-
-  //   }
-  // }
   return (
     <View style={styles.ScanMain}>
       <SafeAreaView></SafeAreaView>
       <Modal isVisible={modalVisible}>
+        <TouchableOpacity
+          style={{
+            height: 35,
+            width: 35,
+            backgroundColor: "white",
+            borderRadius: 5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+
+          onPress={()=>setModalVisible(!modalVisible)}
+        >
+          <Icon name="chevron-left" size={35} color={'#5A6CF3'}/>
+        </TouchableOpacity>
         <CameraView
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={{ height: 200, width: 300, alignSelf: "center" }}
@@ -91,10 +99,12 @@ export default function Scan() {
       </TouchableOpacity>
 
       <View style={{ height: 30 }}></View>
-      <Text style={{ fontWeight: "bold", fontSize: 20 }}>Scanned Data:</Text>
 
-      {scanned && (
+      {scanned ? (
         <>
+          <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+            Scanned Data:
+          </Text>
           <View style={{ height: 30 }}></View>
           <View
             style={{
@@ -117,10 +127,10 @@ export default function Scan() {
               backgroundColor: "#69AEA9",
               alignItems: "center",
               justifyContent: "center",
-              borderRadius:10,
-              position:'absolute',
-              alignSelf:'center',
-              top:height-150
+              borderRadius: 10,
+              position: "absolute",
+              alignSelf: "center",
+              top: height - 150,
             }}
           >
             <Text style={{ fontWeight: "bold", fontSize: 20, color: "white" }}>
@@ -128,6 +138,23 @@ export default function Scan() {
             </Text>
           </TouchableOpacity>
         </>
+      ) : (
+        <View
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: height - 300,
+          }}
+        >
+          <Image
+            source={require("../../assets/images/magnifier.png")}
+            style={{ height: 250, width: 250 }}
+          />
+          <Text style={{ fontSize: 20, fontWeight: "500", color: "gray" }}>
+            No Products Scanned or Added yet!
+          </Text>
+        </View>
       )}
     </View>
   );
