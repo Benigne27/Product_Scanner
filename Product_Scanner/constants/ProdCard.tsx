@@ -22,7 +22,7 @@ const ProdCard = ({ image, name, price, category }: cardProps) => {
       <View style={styles.prodDetails}>
         <Text style={styles.prodName}>Name: {name}</Text>
         <Text style={styles.prodCategory}>Category: {category}</Text>
-        <Text style={styles.prodPrice}>RWF {price}</Text>
+        <Text style={styles.prodPrice}>{price} RWF</Text>
       </View>
       </View>
       

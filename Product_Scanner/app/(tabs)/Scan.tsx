@@ -15,6 +15,7 @@ import { Icon } from "react-native-elements";
 import { Camera, CameraView } from "expo-camera";
 import axios from "axios";
 import Modal from "react-native-modal";
+import ProdCard from "@/constants/ProdCard";
 
 const height = Dimensions.get("screen").height;
 const width = Dimensions.get("screen").width;
@@ -29,6 +30,13 @@ export default function Scan() {
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [scannnedList, setScannedList] = useState<
+    Array<{ id: string; data: string }>
+  >([]);
+
+  // interface scannedProd{
+  //   name: string
+  // }
 
   useEffect(() => {
     (async () => {
@@ -37,10 +45,22 @@ export default function Scan() {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }: BarCodeScannedEvent) => {
+  const handleBarCodeScanned = ({ data }: BarCodeScannedEvent) => {
     setScanned(true);
-    setScannedData(data);
+    // setScannedData(data);
     setModalVisible(!modalVisible);
+    // setScannedList([...scannnedList, scannedData])
+
+    if (!scannnedList.some((product) => product.data === data)) {
+      setScannedList((prevProd) => [
+        ...prevProd,
+        { id: `${prevProd.length}`, data },
+      ]);
+      console.log(scannnedList)
+    }
+    setTimeout(() => {
+      setScanned(false)
+    }, 2000);
   };
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
@@ -63,10 +83,9 @@ export default function Scan() {
             alignItems: "center",
             justifyContent: "center",
           }}
-
-          onPress={()=>setModalVisible(!modalVisible)}
+          onPress={() => setModalVisible(!modalVisible)}
         >
-          <Icon name="chevron-left" size={35} color={'#5A6CF3'}/>
+          <Icon name="chevron-left" size={35} color={"#5A6CF3"} />
         </TouchableOpacity>
         <CameraView
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
@@ -100,13 +119,16 @@ export default function Scan() {
 
       <View style={{ height: 30 }}></View>
 
-      {scanned ? (
+      {scannnedList.length>0 ? (
         <>
           <Text style={{ fontWeight: "bold", fontSize: 20 }}>
             Scanned Data:
           </Text>
           <View style={{ height: 30 }}></View>
-          <View
+          {/* <View></View> */}
+          {scannnedList.map((item, index)=>(
+            <View>
+               <View
             style={{
               width: 350,
               paddingVertical: 20,
@@ -115,11 +137,17 @@ export default function Scan() {
               justifyContent: "center",
               borderRadius: 10,
             }}
+            key={index}
           >
             <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-              {scannedData}
+              {item.data}
             </Text>
           </View>
+          <View style={{height:10}}></View>
+            </View>
+           
+          
+          ))}
           <TouchableOpacity
             style={{
               height: 50,

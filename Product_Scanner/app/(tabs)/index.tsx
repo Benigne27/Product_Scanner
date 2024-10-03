@@ -131,19 +131,6 @@ export default function HomeScreen() {
             </>
           )}
         </View>
-        {/* <Pressable
-          style={{
-            height: 50,
-            width: 100,
-            backgroundColor: "purple",
-            alignSelf: "center",
-            justifyContent: "center",
-            display: "flex",
-          }}
-          onPress={()=>theProducts()}
-        >
-          <Text style={{ color: "white", alignSelf: "center" }}>Console</Text>
-        </Pressable> */}
       </ScrollView>
     </View>
   );
