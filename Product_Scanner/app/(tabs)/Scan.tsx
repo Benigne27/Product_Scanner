@@ -8,6 +8,7 @@ import {
   Alert,
   Button,
   Image,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -56,10 +57,10 @@ export default function Scan() {
         ...prevProd,
         { id: `${prevProd.length}`, data },
       ]);
-      console.log(scannnedList)
+      console.log(scannnedList);
     }
     setTimeout(() => {
-      setScanned(false)
+      setScanned(false);
     }, 2000);
   };
   if (hasPermission === null) {
@@ -119,52 +120,64 @@ export default function Scan() {
 
       <View style={{ height: 30 }}></View>
 
-      {scannnedList.length>0 ? (
+      {scannnedList.length > 0 ? (
         <>
           <Text style={{ fontWeight: "bold", fontSize: 20 }}>
             Scanned Data:
           </Text>
           <View style={{ height: 30 }}></View>
-          {/* <View></View> */}
-          {scannnedList.map((item, index)=>(
-            <View>
-               <View
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {scannnedList.map((item, index) => (
+              <View>
+                <View
+                  style={{
+                    width: 350,
+                    paddingVertical: 20,
+                    backgroundColor: "white",
+                    paddingHorizontal: 20,
+                    justifyContent: "center",
+                    borderRadius: 10,
+                  }}
+                  key={index}
+                >
+                  <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                    {item.data}
+                  </Text>
+                </View>
+                <View style={{ height: 10 }}></View>
+              </View>
+            ))}
+          </ScrollView>
+          <View
             style={{
-              width: 350,
-              paddingVertical: 20,
-              backgroundColor: "white",
-              paddingHorizontal: 20,
-              justifyContent: "center",
-              borderRadius: 10,
-            }}
-            key={index}
-          >
-            <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-              {item.data}
-            </Text>
-          </View>
-          <View style={{height:10}}></View>
-            </View>
-           
-          
-          ))}
-          <TouchableOpacity
-            style={{
-              height: 50,
-              width: 350,
-              backgroundColor: "#69AEA9",
+              height:70,
+              width:width,
+              backgroundColor:'#F6E3DB',
+              position: "absolute",
+              display:'flex',
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: 10,
-              position: "absolute",
-              alignSelf: "center",
+             
               top: height - 150,
             }}
           >
-            <Text style={{ fontWeight: "bold", fontSize: 20, color: "white" }}>
-              Checkout
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={{
+              height: 50,
+              width: 350,
+              backgroundColor: "#69AEA9",
+              display:'flex',
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 10,
+              
+            }}>
+              <Text
+                style={{ fontWeight: "bold", fontSize: 20, color: "white" }}
+              >
+                Checkout
+              </Text>
+            </TouchableOpacity>
+          </View>
         </>
       ) : (
         <View

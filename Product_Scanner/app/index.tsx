@@ -29,7 +29,7 @@ import {
         <View style={{ height: 150 }}></View>
         <Text style={styles.SaveText}>Scan Smart {"\n"} Work Faster</Text>
         <View style={{ height: 50 }}></View>
-       <Link href={'/Signin'} asChild>
+       <Link href={'/Log'} asChild>
         <TouchableOpacity
           style={styles.button}
           >
