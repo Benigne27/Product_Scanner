@@ -18,9 +18,11 @@ const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
 
 export default function Login() {
-  const [message, setMessage] = useState("");
+  // const [message, setMessage] = useState("");
   const [input, setInput] = useState("");
-  const [sender, setSender]=useState('')
+  const [username, setUsername]=useState('')
+  const [recipients, setRecipients] = useState("");
+  const [receivedMessage, setReceivedMessage] = useState(""); 
   const socket= useRef(null)
    
 
@@ -32,28 +34,38 @@ export default function Login() {
     };
 
     socket.current.onmessage = (event) => {
-      console.log("New Incoming Message", event.data);
-      setMessage(event.data);
+      // console.log("New Incoming Message:", event.data);
+      // setMessage(event.data);
+      const message = event.data;
+      const [sender, content] = message.split("##"); 
+      setReceivedMessage(`${sender}: ${content}`); 
     };
 
     socket.current.onclose = () => {
       console.log("Connection closed");
     };
-
     socket.current.onerror = (error) => {
       console.error("Socket error:", error);
     };
 
-    // return () => {
-    //   socket.current.close();
-    // };
-  }, [sender]);
+    return () => {
+      socket.current.close();
+    };
+  }, []);
 
   const sendMessage = () => {
-    if (socket.current && socket.current.readyState === WebSocket.OPEN) {
-      const messageFormat=`${sender}##${input}`
+    if (socket.current || socket.current.readyState === WebSocket.OPEN) {
+      try {
+        const messageFormat=`${username}<>${recipients}#${input}`
+  
       socket.current.send(messageFormat)
-      setInput("");
+      console.log("Sending message: ", messageFormat);
+  
+      } catch (error) {
+        console.log('Error while sending:', error);
+        
+      }
+      
     } else {
       console.log("Failed");
     }
@@ -72,15 +84,22 @@ export default function Login() {
         >
           <SafeAreaView></SafeAreaView>
           <View>
-        <Text style={{color:'white', fontSize:20}}>{message}</Text>
+        <Text style={{color:'white', fontSize:20}}>{receivedMessage}</Text>
           </View>
           <View>
+          <Input
+              placeholder="Recipient(s)"
+              icon="account-outline"
+              secureTextEntry={false}
+              value={recipients}
+              onChangeText={setRecipients}
+            />
             <Input
               placeholder="Username"
               icon="account-outline"
               secureTextEntry={false}
-              value={sender}
-              onChangeText={setSender}
+              value={username}
+              onChangeText={setUsername}
             />
             <Input
               placeholder="Employee ID"
@@ -89,7 +108,7 @@ export default function Login() {
               value={input}
               onChangeText={setInput}
             />
-            <Input placeholder="Password" icon="key-outline" secureTextEntry />
+            {/* <Input placeholder="Password" icon="key-outline" secureTextEntry /> */}
           </View>
         </LinearGradient>
         {/* <Link href={"/(tabs)"} asChild> */}
