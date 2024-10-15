@@ -5,10 +5,12 @@ import { TextInput } from "react-native-paper";
 type scanConstants={
     placeholder:string,
     icon: string,
-    secureTextEntry:boolean
+    secureTextEntry:boolean,
+    value: string,
+    onChangeText: (text: string)=>void
 }
 
-export default function Input({placeholder, icon, secureTextEntry}: scanConstants) {
+export default function Input({placeholder, icon, secureTextEntry, value, onChangeText}: scanConstants) {
   return (
     <View>
       <TextInput
@@ -23,6 +25,8 @@ export default function Input({placeholder, icon, secureTextEntry}: scanConstant
         right={<TextInput.Icon icon={icon} color={'white'}/>}
         keyboardType="email-address"
         secureTextEntry={secureTextEntry}
+        value={value}
+        onChangeText={onChangeText}
 
       />
       <View style={{height:30}}></View>

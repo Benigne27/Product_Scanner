@@ -10,7 +10,7 @@ const Log = () => {
   let socket;
 
   useEffect(() => {
-    socket = new WebSocket("wss://fullcommunication.onrender.com");
+    socket = new WebSocket("ws://192.168.222.61:8765");
     socket.onopen = () => {
       console.log("Connection is on");
       socket.send("Hello there!");
@@ -36,7 +36,7 @@ const Log = () => {
 
   const sendMessage = () => {
     if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(input);
+      socket.send(input)
       setInput("");
     } else {
       console.log("Failed");
@@ -52,11 +52,6 @@ const Log = () => {
       }}
     >
       <SafeAreaView></SafeAreaView>
-      {/* <Input
-        placeholder="message"
-        icon="email-outline"
-        secureTextEntry={false}
-      /> */}
 
       <View style={{height:100}}>
         <Text style={{color:'white'}}>{message}</Text>

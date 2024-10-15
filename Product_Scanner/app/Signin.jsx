@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon, TextInput } from "react-native-paper";
 import { Link } from "expo-router";
@@ -18,6 +18,46 @@ const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
 
 export default function Login() {
+  const [message, setMessage] = useState("");
+  const [input, setInput] = useState("");
+  const [sender, setSender]=useState('')
+  const socket= useRef(null)
+   
+
+  useEffect(() => {
+    socket.current = new WebSocket("ws://192.168.222.61:8765");
+    socket.current.onopen = () => {
+      console.log("Connection is on");
+      socket.current.send("Hello there!");
+    };
+
+    socket.current.onmessage = (event) => {
+      console.log("New Incoming Message", event.data);
+      setMessage(event.data);
+    };
+
+    socket.current.onclose = () => {
+      console.log("Connection closed");
+    };
+
+    socket.current.onerror = (error) => {
+      console.error("Socket error:", error);
+    };
+
+    // return () => {
+    //   socket.current.close();
+    // };
+  }, [sender]);
+
+  const sendMessage = () => {
+    if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+      const messageFormat=`${sender}##${input}`
+      socket.current.send(messageFormat)
+      setInput("");
+    } else {
+      console.log("Failed");
+    }
+  };
   return (
     <View>
       <ImageBackground
@@ -32,20 +72,27 @@ export default function Login() {
         >
           <SafeAreaView></SafeAreaView>
           <View>
+        <Text style={{color:'white', fontSize:20}}>{message}</Text>
+          </View>
+          <View>
             <Input
-              placeholder="Employee name"
+              placeholder="Username"
               icon="account-outline"
               secureTextEntry={false}
+              value={sender}
+              onChangeText={setSender}
             />
             <Input
               placeholder="Employee ID"
               icon="id-card"
               secureTextEntry={false}
+              value={input}
+              onChangeText={setInput}
             />
             <Input placeholder="Password" icon="key-outline" secureTextEntry />
           </View>
         </LinearGradient>
-        <Link href={"/(tabs)"} asChild>
+        {/* <Link href={"/(tabs)"} asChild> */}
           <TouchableOpacity
             style={{
               height: 50,
@@ -56,10 +103,28 @@ export default function Login() {
               alignItems: "center",
               justifyContent: "center",
             }}
+            onPress={sendMessage}
+          >
+            <Text style={styles.LogText}>Try</Text>
+          </TouchableOpacity>
+          <View style={{height:20}}></View>
+          <Link href={"/(tabs)"} asChild>
+          <TouchableOpacity
+            style={{
+              height: 50,
+              backgroundColor: "#69AEA9",
+              width: 300,
+              borderRadius: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onPress={sendMessage}
           >
             <Text style={styles.LogText}>Log In</Text>
           </TouchableOpacity>
-        </Link>
+          </Link>
+        {/* </Link> */}
       </ImageBackground>
     </View>
   );
