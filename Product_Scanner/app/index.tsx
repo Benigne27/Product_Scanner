@@ -1,6 +1,7 @@
 import {
     Dimensions,
     Image,
+    LogBox,
     SafeAreaView,
     StyleSheet,
     Text,
@@ -10,6 +11,7 @@ import {
   import React from "react";
   import { StatusBar } from "expo-status-bar";
   import { Link, Stack } from "expo-router";
+  LogBox.ignoreAllLogs()
   
   const height = Dimensions.get("screen").height;
   const width = Dimensions.get("screen").width;

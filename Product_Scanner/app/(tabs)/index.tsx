@@ -13,11 +13,16 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ProdCard from "../../constants/ProdCard";
 import Search from "@/constants/Search";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { useAppContext } from "../Context/ContextAuth";
+
+
+
+
 
 const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
@@ -34,6 +39,8 @@ export default function HomeScreen() {
   const [searchText, setSearchText] = useState<string>("");
   const [searchData, setSearchData] = useState<Product[]>([]);
   const [searchCard, setSearchCard] = useState<Product[]>([]);
+
+  const {addItems, addedItems, removeItems}= useAppContext()
 
   // const products: Product[] = [
   //   {
@@ -110,6 +117,8 @@ export default function HomeScreen() {
                     name={item.item_name}
                     price={item.selling_price}
                     category={item.category}
+                    icon={'plus'}
+                    onPress={addItems}
                   />
                   <View style={{ height: 10 }}></View>
                 </View>
@@ -124,6 +133,8 @@ export default function HomeScreen() {
                     name={item.item_name}
                     price={item.selling_price}
                     category={item.category}
+                    icon={'plus'}
+                    onPress={addItems}
                   />
                   <View style={{ height: 10 }}></View>
                 </View>

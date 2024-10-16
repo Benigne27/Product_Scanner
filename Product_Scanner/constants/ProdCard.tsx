@@ -1,14 +1,17 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Icon } from "react-native-paper";
+import { GestureResponderEvent } from "react-native";
 type cardProps = {
   image: ImageData;
   name: string;
   price: number;
-  category: string
+  category: string,
+  icon: string,
+  onPress: (event: GestureResponderEvent)=>void
 };
 
-const ProdCard = ({ image, name, price, category }: cardProps) => {
+const ProdCard = ({ image, name, price, category, onPress }: cardProps) => {
   return (
     <View style={styles.CardMain}>
       <View style={styles.CardMain2}>
@@ -27,7 +30,8 @@ const ProdCard = ({ image, name, price, category }: cardProps) => {
       </View>
       
 
-      <TouchableOpacity
+      <TouchableOpacity 
+      onPress={onPress}
         style={{
           height: 35,
           width: 35,
@@ -37,8 +41,9 @@ const ProdCard = ({ image, name, price, category }: cardProps) => {
           justifyContent: "center",
           alignItems: "center",
         }}
+        
       >
-        <Icon source={"plus"} size={30} color="white" />
+        <Icon source={Icon} size={30} color="white" />
       </TouchableOpacity>
     </View>
   );

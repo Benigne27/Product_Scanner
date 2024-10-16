@@ -18,7 +18,6 @@ const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
 
 export default function Login() {
-  // const [message, setMessage] = useState("");
   const [input, setInput] = useState("");
   const [username, setUsername]=useState('')
   const [recipients, setRecipients] = useState("");
@@ -34,8 +33,6 @@ export default function Login() {
     };
 
     socket.current.onmessage = (event) => {
-      // console.log("New Incoming Message:", event.data);
-      // setMessage(event.data);
       const message = event.data;
       const [sender, content] = message.split("##"); 
       setReceivedMessage(`${sender}: ${content}`); 
@@ -108,10 +105,9 @@ export default function Login() {
               value={input}
               onChangeText={setInput}
             />
-            {/* <Input placeholder="Password" icon="key-outline" secureTextEntry /> */}
+            <Input placeholder="Password" icon="key-outline" secureTextEntry />
           </View>
         </LinearGradient>
-        {/* <Link href={"/(tabs)"} asChild> */}
           <TouchableOpacity
             style={{
               height: 50,
@@ -143,7 +139,6 @@ export default function Login() {
             <Text style={styles.LogText}>Log In</Text>
           </TouchableOpacity>
           </Link>
-        {/* </Link> */}
       </ImageBackground>
     </View>
   );
@@ -158,7 +153,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
     paddingBottom: 170,
-    // transform:[{rotate:'180deg'}]
   },
   OpacityBg: {
     height: height,
