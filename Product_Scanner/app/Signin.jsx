@@ -13,7 +13,8 @@ import { Icon, TextInput } from "react-native-paper";
 import { Link, useRouter } from "expo-router";
 import Input from "@/constants/Input";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {showMessage, hideMessage} from 'react-native-flash-message'
+import FlashMessage, {showMessage, hideMessage} from 'react-native-flash-message'
+import { useAppContext } from "./Context/ContextAuth";
 
 const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
@@ -26,11 +27,11 @@ export default function Login() {
   const socket= useRef(null)
   const router=useRouter()
   const [status, setStatus] = useState("Not connected");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentDateTime, setCurrentDateTime]=useState({
     date:'',
     time:''
   })
+  const {login}=useAppContext()
    
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function Login() {
     if (socket.current || socket.current.readyState === WebSocket.OPEN) {
       try {
         const logTime=`Logged in on: ${currentDateTime.date} at ${currentDateTime.time}`
-        const messageFormat=`${username}<>${'me'}#${logTime}`
+        const messageFormat=`${username}<>${'wakanda'}#${logTime}`
         
       socket.current.send(messageFormat)
       console.log("Sending message: ", messageFormat);
@@ -92,7 +93,10 @@ export default function Login() {
 
   const authenticate=async()=>{
     if (!username) {
-      alert("Please enter your username");
+      showMessage({
+        message:'Please, enter a username to login',
+        type:'info'
+      })
       return;
     }
     const authData = {
@@ -110,8 +114,14 @@ export default function Login() {
 
       if (!response.ok) {
         const errorData = await response.json(); // Fetch error response
-      console.error("Error during authentication:", errorData);
+        console.error("Error during authentication:", errorData);
+        showMessage({
+          message:errorData.detail,
+          type:"danger"
+        })
       throw new Error(`HTTP error! Status: ${response.status} - ${errorData.message}`);
+    
+    
       }
 
       const ans = await response.json();
@@ -120,8 +130,12 @@ export default function Login() {
       // If verification is successful
       if (ans.detail === "Verification successful") {
         setStatus("Authenticated");
-        setIsAuthenticated(true)
+        login()
         sendMessage();
+        showMessage({
+          message:'You have successfully logged in!',
+          type:'success'
+        })
         router.push('/(tabs)')
       } else {
         setStatus("Authentication Failed");
@@ -132,10 +146,12 @@ export default function Login() {
   }
   return (
     <View>
+      <FlashMessage/>
       <ImageBackground
         source={require("../assets/images/BarScan.jpg")}
         style={styles.ImgBg}
       >
+        {/* <FlashMessage/> */}
         <LinearGradient
           style={styles.OpacityBg}
           colors={["transparent", "black"]}

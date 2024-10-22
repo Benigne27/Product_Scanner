@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import FlashMessage, {showMessage, hideMessage} from 'react-native-flash-message'
 
 interface AppContextType {
   addedItems: Product[]; //this is the array that is storing the data that is added from the home list of items
@@ -16,6 +17,9 @@ interface AppContextType {
   searchData: Product[];// this is the array that is storing the data that matches the search typed in
   setSearchText: (data: string) => void;
   setSearchData: (data: Product[]) => void;
+  isAuthenticated: boolean
+  login:(text: boolean)=>void
+  logout:(text: boolean)=>void
 }
 
 export interface Product {
@@ -45,16 +49,26 @@ const ContextAuth = ({ children }: AppProviderProps) => {
   const [productList, setProductList] = useState<Product[]>([]);
   const [searchData, setSearchData] = useState<Product[]>([]);
   const [searchText, setSearchText] = useState<string>("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const login = () => setIsAuthenticated(true);
+  const logout = () => setIsAuthenticated(false);
 
   const addItems = (data: Product) => {
     setAddedItems((prevData) => [...prevData, data]);
     console.log("Product added!");
-    Alert.alert("Product added!");
+    showMessage({
+      message:'Product added!',
+      type:'success'
+    })
   };
   const removeItems = (data: Product) => {
     setAddedItems((prevData) => prevData.filter((item) => item !== data));
     console.log("Removed Product");
-    Alert.alert("Product removed!");
+    showMessage({
+      message:'Product removed!',
+      type:'success'
+    })
   };
   const theProducts = () => {
     fetch("https://inventory2-drpa.onrender.com/stocks/")
@@ -93,8 +107,13 @@ const ContextAuth = ({ children }: AppProviderProps) => {
         searchData,
         setSearchText,
         setSearchData,
+        isAuthenticated,
+        login,
+        logout
+        
       }}
     >
+      <FlashMessage/>
       {children}
     </AppContext.Provider>
   );

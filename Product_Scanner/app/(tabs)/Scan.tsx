@@ -20,6 +20,7 @@ import { SwipeablePanel } from "rn-swipeable-panel";
 import ProdCard from "@/constants/ProdCard";
 import { useAppContext } from "../Context/ContextAuth";
 import RadioGroup, {RadioButtonProps} from 'react-native-radio-buttons-group';
+import FlashMessage from "react-native-flash-message";
 
 const height = Dimensions.get("screen").height;
 const width = Dimensions.get("screen").width;
@@ -96,6 +97,7 @@ export default function Scan() {
 
   return (
     <View style={styles.ScanMain}>
+      <FlashMessage/>
       <SafeAreaView></SafeAreaView>
       <Modal isVisible={modalVisible}>
         <TouchableOpacity

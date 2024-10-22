@@ -19,6 +19,8 @@ import Search from "@/constants/Search";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useAppContext } from "../Context/ContextAuth";
+import { useRouter } from "expo-router";
+import FlashMessage from "react-native-flash-message";
 
 
 
@@ -32,12 +34,17 @@ const height = Dimensions.get("screen").height;
 export default function HomeScreen() {
  
 
-  const {addItems, productList, searchText, searchData, setSearchText}= useAppContext()
+  const {addItems, productList, searchText, searchData, setSearchText, isAuthenticated}= useAppContext()
+  const router=useRouter()
 
+  if(!isAuthenticated){
+    router.replace('/Signin')
+  }
   
   
   return (
     <View style={styles.background}>
+      <FlashMessage/>
       <StatusBar style="dark" />
       <SafeAreaView></SafeAreaView>
       <Search
