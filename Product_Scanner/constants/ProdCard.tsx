@@ -1,17 +1,18 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { Icon } from "react-native-paper";
-import { GestureResponderEvent } from "react-native";
+import { Icon } from "react-native-elements";
+import { Product } from "@/app/Context/ContextAuth";
 type cardProps = {
   image: ImageData;
   name: string;
   price: number;
   category: string,
   icon: string,
-  onPress: (event: GestureResponderEvent)=>void
+  product: Product,
+  onPress: (product: Product)=>void
 };
 
-const ProdCard = ({ image, name, price, category, onPress }: cardProps) => {
+const ProdCard = ({ image, name, price, category, onPress, product, icon }: cardProps) => {
   return (
     <View style={styles.CardMain}>
       <View style={styles.CardMain2}>
@@ -31,7 +32,7 @@ const ProdCard = ({ image, name, price, category, onPress }: cardProps) => {
       
 
       <TouchableOpacity 
-      onPress={onPress}
+      onPress={()=>onPress(product)}
         style={{
           height: 35,
           width: 35,
@@ -43,7 +44,8 @@ const ProdCard = ({ image, name, price, category, onPress }: cardProps) => {
         }}
         
       >
-        <Icon source={Icon} size={30} color="white" />
+        <Icon name={icon} size={30} color="white" type="material-community"/>   
+        
       </TouchableOpacity>
     </View>
   );

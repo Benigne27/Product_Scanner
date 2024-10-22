@@ -10,13 +10,16 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "react-native-elements";
 import { Camera, CameraView } from "expo-camera";
 import axios from "axios";
 import Modal from "react-native-modal";
+import { SwipeablePanel } from "rn-swipeable-panel";
 import ProdCard from "@/constants/ProdCard";
+import { useAppContext } from "../Context/ContextAuth";
+import RadioGroup, {RadioButtonProps} from 'react-native-radio-buttons-group';
 
 const height = Dimensions.get("screen").height;
 const width = Dimensions.get("screen").width;
@@ -34,10 +37,24 @@ export default function Scan() {
   const [scannnedList, setScannedList] = useState<
     Array<{ id: string; data: string }>
   >([]);
+  const { addedItems, removeItems } = useAppContext();
+  const [isPanelActive, setIsPanelActive] = useState<boolean>(false);
+  const [selectedId, setSelectedId] = useState<string | undefined>();
 
-  // interface scannedProd{
-  //   name: string
-  // }
+ 
+  const radioButtons: RadioButtonProps[] = useMemo(() => ([
+    {
+        id: '1', 
+        label: 'MobileMoney',
+        value: 'option1'
+    },
+    {
+        id: '2',
+        label: 'Credit Card',
+        value: 'option2'
+    }
+]), []);
+
 
   useEffect(() => {
     (async () => {
@@ -48,9 +65,9 @@ export default function Scan() {
 
   const handleBarCodeScanned = ({ data }: BarCodeScannedEvent) => {
     setScanned(true);
-    // setScannedData(data);
+  
     setModalVisible(!modalVisible);
-    // setScannedList([...scannnedList, scannedData])
+
 
     if (!scannnedList.some((product) => product.data === data)) {
       setScannedList((prevProd) => [
@@ -69,6 +86,13 @@ export default function Scan() {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
+  const openPanel = () => {
+    setIsPanelActive(true);
+  };
+  const closePanel = () => {
+    setIsPanelActive(false);
+  };
 
   return (
     <View style={styles.ScanMain}>
@@ -120,7 +144,7 @@ export default function Scan() {
 
       <View style={{ height: 30 }}></View>
 
-      {scannnedList.length > 0 ? (
+      {/* {scannnedList.length > 0 ? (
         <>
           <Text style={{ fontWeight: "bold", fontSize: 20 }}>
             Scanned Data:
@@ -196,7 +220,97 @@ export default function Scan() {
             No Products Scanned or Added yet!
           </Text>
         </View>
+      )} */}
+
+      {addedItems.length > 0 ? (
+        <>
+          <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+            Your Products:
+          </Text>
+          <View style={{ height: 30 }}></View>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {addedItems.map((item, index) => (
+              <View key={index}>
+                <ProdCard
+                  image={item.image}
+                  name={item.item_name}
+                  price={item.selling_price}
+                  category={item.category}
+                  icon={"minus"}
+                  onPress={removeItems}
+                  product={item}
+                />
+                <View style={{ height: 10 }}></View>
+              </View>
+            ))}
+          </ScrollView>
+          <View
+            style={{
+              height: 70,
+              width: width,
+              backgroundColor: "#F6E3DB",
+              position: "absolute",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+
+              top: height - 150,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                height: 50,
+                width: 350,
+                backgroundColor: "#69AEA9",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 10,
+              }}
+              onPress={openPanel}
+            >
+              <Text
+                style={{ fontWeight: "bold", fontSize: 20, color: "white" }}
+              >
+                Checkout
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <>
+          <View
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: height - 300,
+            }}
+          >
+            <Image
+              source={require("../../assets/images/magnifier.png")}
+              style={{ height: 250, width: 250 }}
+            />
+            <Text style={{ fontSize: 20, fontWeight: "500", color: "gray" }}>
+              No Products Scanned or Added yet!
+            </Text>
+          </View>
+        </>
       )}
+      <SwipeablePanel
+        isActive={isPanelActive}
+        onClose={closePanel}
+        fullWidth onlySmall showCloseButton
+        closeRootStyle={{height:40, width:40, backgroundColor:'#5A6CF3'}}
+      >
+      
+        <RadioGroup
+        radioButtons={radioButtons}
+        onPress={setSelectedId}
+        selectedId={selectedId}
+        
+        />
+      </SwipeablePanel>
     </View>
   );
 }

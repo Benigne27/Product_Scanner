@@ -10,22 +10,42 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon, TextInput } from "react-native-paper";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import Input from "@/constants/Input";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {showMessage, hideMessage} from 'react-native-flash-message'
 
 const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
 
 export default function Login() {
-  const [input, setInput] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
   const [username, setUsername]=useState('')
-  const [recipients, setRecipients] = useState("");
+  const [password, setPassword] = useState("");
   const [receivedMessage, setReceivedMessage] = useState(""); 
   const socket= useRef(null)
+  const router=useRouter()
+  const [status, setStatus] = useState("Not connected");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentDateTime, setCurrentDateTime]=useState({
+    date:'',
+    time:''
+  })
    
 
   useEffect(() => {
+    const theDateTime=()=>{
+      const date=new Date()
+      const theDate=date.toLocaleDateString()
+      const theTime=date.toLocaleTimeString()
+      setCurrentDateTime({date:theDate, time:theTime})
+      console.log(`The time is: ${theTime} at ${theDate}`);
+      
+    }
+    theDateTime()
+
+  
+
     socket.current = new WebSocket("ws://192.168.222.61:8765");
     socket.current.onopen = () => {
       console.log("Connection is on");
@@ -47,14 +67,16 @@ export default function Login() {
 
     return () => {
       socket.current.close();
+      
     };
   }, []);
 
   const sendMessage = () => {
     if (socket.current || socket.current.readyState === WebSocket.OPEN) {
       try {
-        const messageFormat=`${username}<>${recipients}#${input}`
-  
+        const logTime=`Logged in on: ${currentDateTime.date} at ${currentDateTime.time}`
+        const messageFormat=`${username}<>${'me'}#${logTime}`
+        
       socket.current.send(messageFormat)
       console.log("Sending message: ", messageFormat);
   
@@ -67,6 +89,47 @@ export default function Login() {
       console.log("Failed");
     }
   };
+
+  const authenticate=async()=>{
+    if (!username) {
+      alert("Please enter your username");
+      return;
+    }
+    const authData = {
+      username: username.trim(),
+    };
+
+    try {
+      const response = await fetch("http://192.168.222.61:8001/user/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(authData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json(); // Fetch error response
+      console.error("Error during authentication:", errorData);
+      throw new Error(`HTTP error! Status: ${response.status} - ${errorData.message}`);
+      }
+
+      const ans = await response.json();
+      
+
+      // If verification is successful
+      if (ans.detail === "Verification successful") {
+        setStatus("Authenticated");
+        setIsAuthenticated(true)
+        sendMessage();
+        router.push('/(tabs)')
+      } else {
+        setStatus("Authentication Failed");
+      }
+    } catch (error) {
+      console.error("Error during authentication:", error);
+    }
+  }
   return (
     <View>
       <ImageBackground
@@ -81,16 +144,11 @@ export default function Login() {
         >
           <SafeAreaView></SafeAreaView>
           <View>
-        <Text style={{color:'white', fontSize:20}}>{receivedMessage}</Text>
+        {/* <Text style={{color:'white', fontSize:20}}>{receivedMessage}</Text>
+        <Text style={{color:'white', fontSize:20}}>Status: {status}</Text> */}
           </View>
           <View>
-          <Input
-              placeholder="Recipient(s)"
-              icon="account-outline"
-              secureTextEntry={false}
-              value={recipients}
-              onChangeText={setRecipients}
-            />
+         
             <Input
               placeholder="Username"
               icon="account-outline"
@@ -102,10 +160,12 @@ export default function Login() {
               placeholder="Employee ID"
               icon="id-card"
               secureTextEntry={false}
-              value={input}
-              onChangeText={setInput}
+              value={employeeId}
+              onChangeText={setEmployeeId}
             />
-            <Input placeholder="Password" icon="key-outline" secureTextEntry />
+            <Input placeholder="Password" icon="key-outline" secureTextEntry 
+            value={password}
+            onChangeText={setPassword}/>
           </View>
         </LinearGradient>
           <TouchableOpacity
@@ -118,27 +178,11 @@ export default function Login() {
               alignItems: "center",
               justifyContent: "center",
             }}
-            onPress={sendMessage}
+            onPress={authenticate}
           >
-            <Text style={styles.LogText}>Try</Text>
+            <Text style={styles.LogText}>Login</Text>
           </TouchableOpacity>
-          <View style={{height:20}}></View>
-          <Link href={"/(tabs)"} asChild>
-          <TouchableOpacity
-            style={{
-              height: 50,
-              backgroundColor: "#69AEA9",
-              width: 300,
-              borderRadius: 20,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            onPress={sendMessage}
-          >
-            <Text style={styles.LogText}>Log In</Text>
-          </TouchableOpacity>
-          </Link>
+         
       </ImageBackground>
     </View>
   );
