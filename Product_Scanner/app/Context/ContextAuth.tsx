@@ -20,6 +20,7 @@ interface AppContextType {
   isAuthenticated: boolean
   login:(text: boolean)=>void
   logout:(text: boolean)=>void
+  totalAmount: number
 }
 
 export interface Product {
@@ -50,12 +51,18 @@ const ContextAuth = ({ children }: AppProviderProps) => {
   const [searchData, setSearchData] = useState<Product[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [totalAmount, setTotalAmount]=useState<number>(0)
 
   const login = () => setIsAuthenticated(true);
   const logout = () => setIsAuthenticated(false);
 
   const addItems = (data: Product) => {
-    setAddedItems((prevData) => [...prevData, data]);
+    setAddedItems((prevData) => {
+      const allItems=[...prevData, data]
+      ProductTotalAmount(allItems)
+      return allItems
+    }
+      );
     console.log("Product added!");
     showMessage({
       message:'Product added!',
@@ -63,13 +70,22 @@ const ContextAuth = ({ children }: AppProviderProps) => {
     })
   };
   const removeItems = (data: Product) => {
-    setAddedItems((prevData) => prevData.filter((item) => item !== data));
+    setAddedItems((prevData) => {
+      const allItems=prevData.filter((item) => item !== data)
+      ProductTotalAmount(allItems)
+      return allItems
+    });
     console.log("Removed Product");
     showMessage({
       message:'Product removed!',
       type:'success'
     })
   };
+
+  const ProductTotalAmount=(data: Product[])=>{
+    const amount= data.reduce((sum, item)=> sum+ item.selling_price, 0)
+    setTotalAmount(amount)
+  }
   const theProducts = () => {
     fetch("https://inventory2-drpa.onrender.com/stocks/")
       .then((response) => response.json())
@@ -109,7 +125,8 @@ const ContextAuth = ({ children }: AppProviderProps) => {
         setSearchData,
         isAuthenticated,
         login,
-        logout
+        logout,
+        totalAmount
         
       }}
     >

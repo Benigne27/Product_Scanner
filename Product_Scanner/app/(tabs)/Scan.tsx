@@ -19,8 +19,9 @@ import Modal from "react-native-modal";
 import { SwipeablePanel } from "rn-swipeable-panel";
 import ProdCard from "@/constants/ProdCard";
 import { useAppContext } from "../Context/ContextAuth";
-import RadioGroup, {RadioButtonProps} from 'react-native-radio-buttons-group';
+// import RadioGroup, {RadioButtonProps} from 'react-native-radio-buttons-group';
 import FlashMessage from "react-native-flash-message";
+import RadioButton from "@/constants/RadioButton";
 
 const height = Dimensions.get("screen").height;
 const width = Dimensions.get("screen").width;
@@ -41,21 +42,11 @@ export default function Scan() {
   const { addedItems, removeItems } = useAppContext();
   const [isPanelActive, setIsPanelActive] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string | undefined>();
+  const {totalAmount}=useAppContext()
 
- 
-  const radioButtons: RadioButtonProps[] = useMemo(() => ([
-    {
-        id: '1', 
-        label: 'MobileMoney',
-        value: 'option1'
-    },
-    {
-        id: '2',
-        label: 'Credit Card',
-        value: 'option2'
-    }
-]), []);
-
+  const handleSelectOption = (option: string) => {
+    setSelectedId(option);
+  };
 
   useEffect(() => {
     (async () => {
@@ -66,9 +57,8 @@ export default function Scan() {
 
   const handleBarCodeScanned = ({ data }: BarCodeScannedEvent) => {
     setScanned(true);
-  
-    setModalVisible(!modalVisible);
 
+    setModalVisible(!modalVisible);
 
     if (!scannnedList.some((product) => product.data === data)) {
       setScannedList((prevProd) => [
@@ -97,7 +87,7 @@ export default function Scan() {
 
   return (
     <View style={styles.ScanMain}>
-      <FlashMessage/>
+      <FlashMessage />
       <SafeAreaView></SafeAreaView>
       <Modal isVisible={modalVisible}>
         <TouchableOpacity
@@ -302,16 +292,50 @@ export default function Scan() {
       <SwipeablePanel
         isActive={isPanelActive}
         onClose={closePanel}
-        fullWidth onlySmall showCloseButton
-        closeRootStyle={{height:40, width:40, backgroundColor:'#5A6CF3'}}
+        fullWidth
+        onlySmall
+        showCloseButton
+        closeRootStyle={{ height: 40, width: 40, backgroundColor: "#5A6CF3" }}
+       style={{paddingHorizontal:20}}
       >
-      
-        <RadioGroup
-        radioButtons={radioButtons}
-        onPress={setSelectedId}
-        selectedId={selectedId}
-        
-        />
+        <View>
+          <RadioButton
+            label="Momo Pay"
+            image={require("@/assets/images/MomoPay.png")}
+            selected={selectedId === "Momo Pay"}
+            onPress={() => handleSelectOption("Momo Pay")}
+          />
+          <RadioButton
+            label="Cash"
+            image={require("@/assets/images/Cash.png")}
+            selected={selectedId === "Cash"}
+            onPress={() => handleSelectOption("Cash")}
+          />
+        </View>
+        <TouchableOpacity
+          style={{
+            height: 50,
+            backgroundColor: "#69AEA9",
+            width: 300,
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            alignSelf:'center',
+            marginTop:20
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+              fontSize: 20,
+              fontWeight: "bold",
+              textAlign: "center",
+            }}
+          >
+            Pay ({totalAmount} RWF)
+          </Text>
+        </TouchableOpacity>
       </SwipeablePanel>
     </View>
   );

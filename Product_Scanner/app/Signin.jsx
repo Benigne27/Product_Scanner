@@ -160,8 +160,8 @@ export default function Login() {
         >
           <SafeAreaView></SafeAreaView>
           <View>
-        {/* <Text style={{color:'white', fontSize:20}}>{receivedMessage}</Text>
-        <Text style={{color:'white', fontSize:20}}>Status: {status}</Text> */}
+        <Text style={{color:'white', fontSize:20}}>{receivedMessage}</Text>
+        {/* <Text style={{color:'white', fontSize:20}}>Status: {status}</Text> */}
           </View>
           <View>
          
