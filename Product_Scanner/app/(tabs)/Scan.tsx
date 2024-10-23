@@ -238,17 +238,18 @@ export default function Scan() {
           </ScrollView>
           <View
             style={{
-              height: 70,
+              height: 90,
               width: width,
               backgroundColor: "#F6E3DB",
               position: "absolute",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-
-              top: height - 150,
+              top: height - 170,
             }}
           >
+            <Text style={{fontSize:17, fontWeight:'bold', fontStyle:'italic'}}>Total amount: {totalAmount} RWF</Text>
+            <View style={{height:8}}></View>
             <TouchableOpacity
               style={{
                 height: 50,

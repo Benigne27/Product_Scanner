@@ -1,233 +1,241 @@
+import { Buffer } from "buffer";
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
 import {
-  Dimensions,
-  ImageBackground,
+  ActivityIndicator,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  Picker,
+  Button,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Input from "@/constants/Input";
-import { Link } from "expo-router";
+import { Base64 } from "js-base64";
 
-const width = Dimensions.get("screen").width;
-const height = Dimensions.get("screen").height;
+export default function App() {
+  const [isLoading, setIsLoading] = useState(false);
+  const user = "c4f6d33d-ea76-4609-b816-a99dc801b532"; // replace with your provisioned user id or find help here(https://gist.github.com/chaiwa-berian/5294fdf1360247cf4561c95c8fa740d4)
+  const apiKey = "1e79774dabd944b4b113c30aaef5b2c8"; // replace with your provisioned apikey or find help here(https://gist.github.com/chaiwa-berian/5294fdf1360247cf4561c95c8fa740d4)
+  const [bearerToken, setBearerToken] = useState({
+    accessToken: "",
+    expiresIn: "",
+    issuedAt: "",
+    expiresAt: "",
+  });
+  const [selectedValue, setSelectedValue] = useState("CreateBearerToken");
+  const baseURL = "https://sandbox.momodeveloper.mtn.com";
+  const [responseObject, setResponseObject] = useState({});
 
-export default function Login() {
-  const [username, setUsername] = useState("");
-  const [status, setStatus] = useState("Not connected");
-  const [cred, setCred] = useState("");
-  const [ws, setWs] = useState(null);
-  const [receivedMessage,setReceivedMessage]=useState('')
-  // const socket= useRef(null)
-
-
-  // useEffect(() => {
-  //   socket.current = new WebSocket("ws://192.168.222.61:8765");
-  //   socket.current.onopen = () => {
-  //     console.log("Connection is on");
-  //     socket.current.send("Hello there!");
-  //   };
-
-  //   socket.current.onmessage = (event) => {
-  //     const message = event.data;
-  //     const [sender, content] = message.split("##"); 
-  //     setReceivedMessage(${sender}: ${content}); 
-  //   };
-
-  //   socket.current.onclose = () => {
-  //     console.log("Connection closed");
-  //   };
-  //   socket.current.onerror = (error) => {
-  //     console.error("Socket error:", error);
-  //   };
-
-  //   return () => {
-  //     socket.current.close();
-  //   };
-  // }, []);
-
-  // const sendMessage = () => {
-  //   if (socket.current || socket.current.readyState === WebSocket.OPEN) {
-  //     try {
-  //       const messageFormat=${username}<>${recipients}#${input}
-  
-  //     socket.current.send(messageFormat)
-  //     console.log("Sending message: ", messageFormat);
-  
-  //     } catch (error) {
-  //       console.log('Error while sending:', error);
-        
-  //     }
-      
-  //   } else {
-  //     console.log("Failed");
-  //   }
-  // };
-
-
-  // Function to authenticate the user using only the username
-  const authenticate = async () => {
-    if (!username) {
-      alert("Please enter your username");
-      return;
+  let tokenExpired = () => {
+    if (bearerToken.expiresAt != "") {
+      return bearerToken.expiresAt < Date.now() ? "true" : "false";
     }
+    return;
+  };
 
-    const authData = {
-      username: username.trim(),
-    };
-
+  // Step 1. Get Access Token
+  async function createNewBearerToken() {
     try {
-      const response = await fetch("http://192.168.222.61:8001/user/verify", {
+      let requestPath = "/collection/token/";
+      let url = baseURL + requestPath;
+
+      let userApiKeyPair = `${user}:${apiKey}`;
+      let auth = await Base64.encode(userApiKeyPair); //you need to encode api user and api key as Base64
+
+      let requestHeaders = {
+        Accept: "application/json",
+        Authorization: "Basic " + auth,
+        "Ocp-Apim-Subscription-Key": "b44728c249c24d8bb11d8b8592f4f5a7", //replace with your subscription key
+        "X-Target-Environment": "sandbox",
+      };
+
+      let response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(authData),
+        headers: requestHeaders,
+        mode: "cors",
       });
-
-      if (!response.ok) {
-        const errorData = await response.json(); // Fetch error response
-      console.error("Error during authentication:", errorData);
-      throw new Error(`HTTP error! Status: ${response.status} - ${errorData.message}`);
-      }
-
-      const ans = await response.json();
-      setCred(ans.detail);
-
-      // If verification is successful
-      if (ans.detail === "Verification successful") {
-        setStatus("Authenticated");
-        sendMessageThroughWebSocket();
-      } else {
-        setStatus("Authentication Failed");
+      let responseData = response.status == 200 ? await response.json() : null;
+      setResponseObject({
+        status: response.status,
+        ok: response.ok,
+        statusText: response.statusText,
+        data: responseData,
+      });
+      if (response.status == 200) {
+        let now = new Date();
+        let time_milliseconds = now.getTime() + responseData.expires_in * 1000;
+        setBearerToken({
+          accessToken: responseData.access_token,
+          expiresIn: responseData.expires_in,
+          issuedAt: now.toString(),
+          expiresAt: time_milliseconds,
+        });
       }
     } catch (error) {
-      console.error("Error during authentication:", error);
+      setResponseObject({
+        status: error.status || null,
+        ok: error.ok || null,
+        statusText: error.statusText || null,
+        data: error.message,
+      });
+      console.log("Error in create new token method:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
 
-  // Function to send a message through WebSocket
-  const sendMessageThroughWebSocket = () => {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      const message = `${username}<>${'me'}#${'Hellooo'}`;
-      try {
-      ws.send(message);
-      } catch (error) {
-        console.error(error);
-        
-      }
-      console.log("Sending WebSocket message:", message);
-    } else {
-      console.error("WebSocket is not connected.");
+  // Step 2. Request To Pay
+  async function requestToPay() {
+    try {
+      let requestPath = "/collection/v1_0/requesttopay";
+      let url = baseURL + requestPath;
+
+      let xRefResponse = await fetch(
+        "https://www.uuidgenerator.net/api/version4",
+        {
+          method: "GET",
+        }
+      );
+      let xRefId = await xRefResponse.text();
+      console.log("xRef: ", xRefId);
+
+      let requestBody = JSON.stringify(
+        {
+          amount: "700.0",
+          currency: "EUR",
+          externalId: "097411060",
+          payer: {
+            partyIdType: "MSISDN",
+            partyId: "260962217314",
+          },
+          payerMessage: "SILC Savings",
+          payeeNote: "SILC Savings",
+        },
+        null,
+        2
+      );
+
+      let contentLength = Buffer.byteLength(requestBody, "utf8");
+
+      let token = `Bearer ${bearerToken.accessToken}`;
+
+      let newRequestHeaders = new Headers();
+      newRequestHeaders.append("Accept", "application/json");
+      newRequestHeaders.append("X-Reference-Id", xRefId);
+      newRequestHeaders.append(
+        "Ocp-Apim-Subscription-Key",
+        "b44728c249c24d8bb11d8b8592f4f5a7"
+      );
+      newRequestHeaders.append("X-Target-Environment", "sandbox");
+      newRequestHeaders.append("Host", "sandbox.momodeveloper.mtn.com");
+      newRequestHeaders.append("Content-Type", "application/json");
+      newRequestHeaders.append("Content-Length", contentLength);
+      newRequestHeaders.append("Authorization", token);
+
+      let request = new Request(url, {
+        method: "POST",
+        headers: newRequestHeaders,
+        body: requestBody,
+      });
+
+      let response = await fetch(request);
+      console.log("request headers: ", JSON.stringify(request.headers));
+      let responseData = await response.text();
+
+      setResponseObject({
+        status: response.status,
+        ok: response.ok,
+        statusText: response.statusText,
+        data: responseData || null,
+      });
+
+      console.log("Request to pay respose:", JSON.stringify(response));
+    } catch (error) {
+      setResponseObject({
+        status: error.status || null,
+        ok: error.ok || null,
+        statusText: error.statusText || null,
+        data: error.message,
+      });
+      console.log("Error in requestToPay method:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  // WebSocket setup
-  useEffect(() => {
-    const socket = new WebSocket("ws://192.168.222.61:8765");
-
-    socket.onopen = () => {
-      console.log("WebSocket connection established.");
-      setWs(socket);
-    };
-
-    socket.onclose = () => {
-      console.log("WebSocket connection closed.");
-    };
-
-    socket.onerror = (e) => {
-      console.error("WebSocket error:", e.message);
-    };
-    socket.onmessage = (event) => {
-          const message = event.data;
-          const [sender, content] = message.split("##"); 
-          setReceivedMessage(`${sender}: ${content}`); 
-        };
-
-    return () => {
-      socket.close();
-    };
-  }, []);
+  }
 
   return (
-    <View>
-      <ImageBackground
-        source={require("../assets/images/BarScan.jpg")}
-        style={styles.ImgBg}
+    <View style={styles.container}>
+      <Text h1 style={{ fontWeight: "bold" }}>
+        MTN MoMo API Client Demo!
+      </Text>
+      <Text h2 style={{ fontWeight: "bold" }}>
+        Access Token
+      </Text>
+      <Text>{bearerToken.accessToken}</Text>
+      <Text h3>Issued at: {bearerToken.issuedAt}</Text>
+      <Text h3>
+        Expires at:{" "}
+        {bearerToken.expiresAt == ""
+          ? ""
+          : new Date(bearerToken.expiresAt).toString()}
+      </Text>
+      <Text h3>Token Expired?: {tokenExpired()}</Text>
+
+      <Picker
+        selectedValue={selectedValue}
+        onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
+        style={{ height: 50, width: 250 }}
       >
-        <LinearGradient
-          style={styles.OpacityBg}
-          colors={["transparent", "black"]}
-          start={[0, 0.1]}
-          end={[0, 0.6]}
-        >
-          <SafeAreaView></SafeAreaView>
-          <View>
-            <Text style={{ color: "white", fontSize: 20 }}>Status: {status}</Text>
-            <Text style={{ color: "white", fontSize: 20 }}>Message: {receivedMessage}</Text>
+        <Picker.Item label="Get New Access Token" value="CreateBearerToken" />
+        <Picker.Item label="Request To Pay" value="RequestToPay" />
+      </Picker>
+
+      <Button
+        title="Run"
+        onPress={() => {
+          if (selectedValue == "CreateBearerToken") {
+            setIsLoading(true);
+            createNewBearerToken();
+          } else if (selectedValue == "RequestToPay") {
+            setIsLoading(true);
+            requestToPay();
+          }
+        }}
+      />
+
+      <View style={styles.subcontainer}>
+        <Text h1 style={{ fontWeight: "bold" }}>
+          SERVER RESPONSE
+        </Text>
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <View style={styles.subcontainer}>
+            <Text
+              h2
+            >{`Status: ${responseObject.status}; OK: ${responseObject.ok}; StatusText: ${responseObject.statusText}`}</Text>
+            <Text h2 style={{ fontWeight: "bold" }}>
+              Response Data
+            </Text>
+            <Text>{JSON.stringify(responseObject.data)}</Text>
           </View>
-          <View>
-            <Input
-              placeholder="Username"
-              icon="account-outline"
-              secureTextEntry={false}
-              value={username}
-              onChangeText={setUsername}
-            />
-          </View>
-        </LinearGradient>
-        <TouchableOpacity
-          style={styles.AuthButton}
-          onPress={authenticate}
-        >
-          <Text style={styles.LogText}>Authenticate</Text>
-        </TouchableOpacity>
-        <Link href={"/(tabs)"} asChild>
-          <TouchableOpacity style={styles.AuthButton}>
-            <Text style={styles.LogText}>Log In</Text>
-          </TouchableOpacity>
-        </Link>
-      </ImageBackground>
+        )}
+      </View>
+
+      <StatusBar style="auto" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  ImgBg: {
-    height: height,
-    width: width,
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    paddingBottom: 170,
-  },
-  OpacityBg: {
-    height: height,
-    width: width,
-    opacity: 0.87,
-    position: "absolute",
-    display: "flex",
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
-  LogText: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  AuthButton: {
-    height: 50,
-    backgroundColor: "#69AEA9",
-    width: 300,
-    borderRadius: 20,
-    display: "flex",
+  subcontainer: {
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 10,
   },
 });
