@@ -6,10 +6,11 @@ import {
   StyleSheet,
   Text,
   View,
-  Picker,
+  // Picker,
   Button,
 } from "react-native";
 import { Base64 } from "js-base64";
+import {Picker} from '@react-native-picker/picker'
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);

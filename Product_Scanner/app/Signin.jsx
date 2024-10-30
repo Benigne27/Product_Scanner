@@ -15,13 +15,14 @@ import Input from "@/constants/Input";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FlashMessage, {showMessage, hideMessage} from 'react-native-flash-message'
 import { useAppContext } from "./Context/ContextAuth";
+import * as secureStore from 'expo-secure-store'
 
 const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
 
 export default function Login() {
   const [employeeId, setEmployeeId] = useState("");
-  const [username, setUsername]=useState('')
+  // const [username, setUsername]=useState('')
   const [password, setPassword] = useState("");
   const [receivedMessage, setReceivedMessage] = useState(""); 
   const socket= useRef(null)
@@ -31,10 +32,15 @@ export default function Login() {
     date:'',
     time:''
   })
-  const {login}=useAppContext()
+  const {login, username,setUsername}=useAppContext()
    
 
   useEffect(() => {
+    const saveUsername=async()=>{
+      await secureStore.setItemAsync('username', username)
+    }
+    saveUsername()
+    
     const theDateTime=()=>{
       const date=new Date()
       const theDate=date.toLocaleDateString()

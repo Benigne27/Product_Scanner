@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import FlashMessage, {showMessage, hideMessage} from 'react-native-flash-message'
+import * as SecureStore from 'expo-secure-store'
 
 interface AppContextType {
   addedItems: Product[]; //this is the array that is storing the data that is added from the home list of items
@@ -20,7 +21,9 @@ interface AppContextType {
   isAuthenticated: boolean
   login:(text: boolean)=>void
   logout:(text: boolean)=>void
-  totalAmount: number
+  totalAmount: number, 
+  username: string|null,
+  setUsername: (username: string)=> void
 }
 
 export interface Product {
@@ -52,9 +55,17 @@ const ContextAuth = ({ children }: AppProviderProps) => {
   const [searchText, setSearchText] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [totalAmount, setTotalAmount]=useState<number>(0)
+  const [username, setUsername]= useState<string|null>(null)
 
   const login = () => setIsAuthenticated(true);
   const logout = () => setIsAuthenticated(false);
+
+  const getUsername=async()=>{
+    const loggedUsername= await SecureStore.getItemAsync('username')
+    if (loggedUsername) setUsername(loggedUsername)
+  }
+
+  getUsername()
 
   const addItems = (data: Product) => {
     setAddedItems((prevData) => {
@@ -126,7 +137,9 @@ const ContextAuth = ({ children }: AppProviderProps) => {
         isAuthenticated,
         login,
         logout,
-        totalAmount
+        totalAmount,
+        username,
+        setUsername
         
       }}
     >

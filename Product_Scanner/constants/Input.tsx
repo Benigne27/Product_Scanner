@@ -15,10 +15,11 @@ export default function Input({placeholder, icon, secureTextEntry, value, onChan
     <View>
       <TextInput
         style={styles.Input}
-        theme={{ roundness: 20, colors: { primary: "transparent" } }}
+        theme={{ roundness: 20, colors: { primary: "#69AEA9" } }}
+        underlineStyle={{backgroundColor:'transparent'}}
         underlineColor="transparent"
         placeholder={placeholder}
-        placeholderTextColor={'white'}
+        placeholderTextColor={'gray'}
         textColor="white"
         cursorColor="#69AEA9"
         clearTextOnFocus={true}
