@@ -19,8 +19,8 @@ interface AppContextType {
   setSearchText: (data: string) => void;
   setSearchData: (data: Product[]) => void;
   isAuthenticated: boolean
-  login:(text: boolean)=>void
-  logout:(text: boolean)=>void
+  login:()=>void
+  logout:()=>void
   totalAmount: number, 
   username: string|null,
   setUsername: (username: string)=> void
@@ -57,20 +57,29 @@ const ContextAuth = ({ children }: AppProviderProps) => {
   const [totalAmount, setTotalAmount]=useState<number>(0)
   const [username, setUsername]= useState<string|null>(null)
 
-  const login = () => setIsAuthenticated(true);
-  const logout = () => setIsAuthenticated(false);
+  const login = () => {
+    if(username){
+      setIsAuthenticated(true);
+    } 
+  }
+  const logout = async() => {
+    await SecureStore.deleteItemAsync('username')
+    setUsername('');
+    setIsAuthenticated(false)
+  }
 
   const getUsername=async()=>{
     const loggedUsername= await SecureStore.getItemAsync('username')
     if (loggedUsername) setUsername(loggedUsername)
   }
 
-  getUsername()
+  
 
   const addItems = (data: Product) => {
     setAddedItems((prevData) => {
       const allItems=[...prevData, data]
       ProductTotalAmount(allItems)
+      SecureStore.setItemAsync('addedItems', JSON.stringify(allItems))
       return allItems
     }
       );
@@ -84,6 +93,7 @@ const ContextAuth = ({ children }: AppProviderProps) => {
     setAddedItems((prevData) => {
       const allItems=prevData.filter((item) => item !== data)
       ProductTotalAmount(allItems)
+      SecureStore.setItemAsync('addeeItems', JSON.stringify(allItems))
       return allItems
     });
     console.log("Removed Product");
@@ -92,6 +102,14 @@ const ContextAuth = ({ children }: AppProviderProps) => {
       type:'success'
     })
   };
+
+  const getAddedItems=async()=>{
+    const theAddedItems= await SecureStore.getItemAsync('addedItems')
+    if (theAddedItems){
+      setAddedItems(JSON.parse(theAddedItems))
+    }
+  }
+  
 
   const ProductTotalAmount=(data: Product[])=>{
     const amount= data.reduce((sum, item)=> sum+ item.selling_price, 0)
@@ -106,6 +124,8 @@ const ContextAuth = ({ children }: AppProviderProps) => {
       })
       .catch((error) => console.error(error));
   };
+
+  
   console.log(addedItems);
 
   const Searching = () => {
@@ -118,8 +138,14 @@ const ContextAuth = ({ children }: AppProviderProps) => {
       setSearchData([]);
     }
   };
-  useEffect(() => {
+
+  useEffect(()=>{
     theProducts();
+    getUsername()
+    getAddedItems()
+  }, [])
+
+  useEffect(() => {
     Searching();
   }, [searchText]);
 

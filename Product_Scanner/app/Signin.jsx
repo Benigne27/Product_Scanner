@@ -15,7 +15,7 @@ import Input from "@/constants/Input";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FlashMessage, {showMessage, hideMessage} from 'react-native-flash-message'
 import { useAppContext } from "./Context/ContextAuth";
-import * as secureStore from 'expo-secure-store'
+import * as SecureStore from 'expo-secure-store'
 
 const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
@@ -36,10 +36,10 @@ export default function Login() {
    
 
   useEffect(() => {
-    const saveUsername=async()=>{
-      await secureStore.setItemAsync('username', username)
-    }
-    saveUsername()
+    // const saveUsername=async()=>{
+    //   await SecureStore.setItemAsync('username', username)
+    // }
+    // saveUsername()
     
     const theDateTime=()=>{
       const date=new Date()
@@ -136,6 +136,7 @@ export default function Login() {
       // If verification is successful
       if (ans.detail === "Verification successful") {
         setStatus("Authenticated");
+        await SecureStore.setItemAsync('username', username)
         login()
         sendMessage();
         showMessage({

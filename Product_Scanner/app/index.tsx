@@ -3,13 +3,14 @@ import {
     Image,
     LogBox,
     SafeAreaView,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
   } from "react-native";
   import React from "react";
-  import { StatusBar } from "expo-status-bar";
+  // import { StatusBar } from "expo-status-bar";
   import { Link, Stack } from "expo-router";
   LogBox.ignoreAllLogs()
   
@@ -20,7 +21,7 @@ import {
     return (
       <View style={styles.container}>
         
-        <StatusBar style="auto"/>
+        <StatusBar barStyle={'dark-content'}/>
         <SafeAreaView></SafeAreaView>
         <View>
           <Image

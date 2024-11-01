@@ -7,7 +7,8 @@ import 'react-native-reanimated';
 
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import ContextAuth from './Context/ContextAuth';
+import ContextAuth, { useAppContext } from './Context/ContextAuth';
+import { MenuProvider } from 'react-native-popup-menu';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -28,12 +29,31 @@ export default function RootLayout() {
     return null;
   }
 
+
   return (
-    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <MenuProvider>
     <ContextAuth>
-      <Stack screenOptions={{headerShown:false}}>
-      </Stack>
-    {/* // </ThemeProvider> */}
+      <RootStack/>
     </ContextAuth>
+    </MenuProvider>
+  );
+}
+
+const RootStack = () => {
+  const { username, isAuthenticated } = useAppContext();
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      {isAuthenticated || username? (
+        <>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="+not-found" />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name='index' />
+        </>
+      )}
+    </Stack>
   );
 }

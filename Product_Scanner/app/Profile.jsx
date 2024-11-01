@@ -1,5 +1,7 @@
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { Dimensions, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+
+const height=Dimensions.get('screen').height
 
 const Profile = () => {
   return (
@@ -12,4 +14,9 @@ const Profile = () => {
 
 export default Profile
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    ProfileTab:{
+        height:height,
+        paddingHorizontal:20
+    }
+})
